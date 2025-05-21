@@ -1250,6 +1250,7 @@ class Query(Expression):
         recursive: t.Optional[bool] = None,
         materialized: t.Optional[bool] = None,
         append: bool = True,
+        prepend: bool = False,
         dialect: DialectType = None,
         copy: bool = True,
         scalar: bool = False,
@@ -1286,6 +1287,7 @@ class Query(Expression):
             recursive=recursive,
             materialized=materialized,
             append=append,
+            prepend=prepend,
             dialect=dialect,
             copy=copy,
             scalar=scalar,
@@ -7180,6 +7182,7 @@ def _apply_child_list_builder(
     instance,
     arg,
     append=True,
+    prepend=False,
     copy=True,
     prefix=None,
     into=None,
@@ -7211,7 +7214,11 @@ def _apply_child_list_builder(
 
     existing = instance.args.get(arg)
     if append and existing:
-        parsed = existing.expressions + parsed
+        if prepend:
+            parsed = parsed + existing.expressions
+        else:
+            parsed = existing.expressions + parsed
+
 
     child = into(expressions=parsed)
     for k, v in properties.items():
@@ -7287,6 +7294,7 @@ def _apply_cte_builder(
     recursive: t.Optional[bool] = None,
     materialized: t.Optional[bool] = None,
     append: bool = True,
+    prepend: bool = False,
     dialect: DialectType = None,
     copy: bool = True,
     scalar: bool = False,
@@ -7303,6 +7311,7 @@ def _apply_cte_builder(
         instance=instance,
         arg="with",
         append=append,
+        prepend=prepend,
         copy=copy,
         into=With,
         properties={"recursive": recursive or False},
